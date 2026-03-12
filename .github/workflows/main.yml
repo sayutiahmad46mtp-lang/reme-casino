@@ -19,21 +19,15 @@ jobs:
       - name: Unzip project
         run: unzip reme-casino.zip
 
-      - name: Fix Gradle version
-        working-directory: reme-casino
+      - name: Install Gradle 8.6
         run: |
-          mkdir -p gradle/wrapper
-          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
-          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.6-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          wget -q https://services.gradle.org/distributions/gradle-8.6-bin.zip -O gradle-8.6-bin.zip
+          unzip -q gradle-8.6-bin.zip -d /opt/gradle
+          echo "/opt/gradle/gradle-8.6/bin" >> $GITHUB_PATH
 
       - name: Build APK
         working-directory: reme-casino
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleRelease --warning-mode none
+        run: gradle assembleRelease --warning-mode none
 
       - uses: actions/upload-artifact@v4
         with:
