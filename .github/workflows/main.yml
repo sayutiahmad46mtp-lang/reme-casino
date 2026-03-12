@@ -20,18 +20,28 @@ jobs:
       - name: Unzip project
         run: unzip reme-casino.zip
 
-      - name: List files after unzip
-        run: ls -la reme-casino
+      - name: List all files after unzip
+        run: ls -la
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x reme-casino/gradlew
+      - name: Locate gradlew and set permissions
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            echo "PROJECT_DIR=." >> $GITHUB_ENV
+          elif [ -f "./reme-casino/gradlew" ]; then
+            chmod +x ./reme-casino/gradlew
+            echo "PROJECT_DIR=./reme-casino" >> $GITHUB_ENV
+          else
+            echo "Gradle wrapper not found!"
+            exit 1
+          fi
 
       - name: Build APK
-        working-directory: reme-casino
+        working-directory: ${{ env.PROJECT_DIR }}
         run: ./gradlew assembleRelease --warning-mode none
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: reme-casino-apk
-          path: reme-casino/app/build/outputs/apk/release/*.apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/release/*.apk
