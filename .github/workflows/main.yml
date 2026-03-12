@@ -1,3 +1,4 @@
+
 name: Build APK
 
 on:
@@ -20,21 +21,31 @@ jobs:
       - name: Unzip project
         run: unzip reme-casino.zip
 
-      - name: List all files after unzip
+      - name: List files after unzip
         run: ls -la
 
-      - name: Locate gradlew and set permissions
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Create gradlew if not exists
+        run: |
+          if [ ! -f "./gradlew" ] && [ ! -f "./reme-casino/gradlew" ]; then
+            echo "Gradle wrapper not found, creating it..."
+            gradle wrapper --gradle-version 8.6
+          fi
+
+      - name: Locate project directory
         run: |
           if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
             echo "PROJECT_DIR=." >> $GITHUB_ENV
           elif [ -f "./reme-casino/gradlew" ]; then
-            chmod +x ./reme-casino/gradlew
             echo "PROJECT_DIR=./reme-casino" >> $GITHUB_ENV
           else
-            echo "Gradle wrapper not found!"
-            exit 1
+            echo "PROJECT_DIR=." >> $GITHUB_ENV
           fi
+
+      - name: Grant permission
+        run: chmod +x ${{ env.PROJECT_DIR }}/gradlew
 
       - name: Build APK
         working-directory: ${{ env.PROJECT_DIR }}
