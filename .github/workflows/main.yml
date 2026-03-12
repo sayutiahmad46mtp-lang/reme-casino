@@ -1,4 +1,3 @@
-
 name: Build APK
 
 on:
@@ -21,37 +20,48 @@ jobs:
       - name: Unzip project
         run: unzip reme-casino.zip
 
-      - name: List files after unzip
-        run: ls -la
+      - name: 🔍 Tampilkan semua file (debug)
+        run: |
+          echo "=== Daftar file setelah unzip ==="
+          ls -la
+          echo "=== Struktur folder (kedalaman 2) ==="
+          find . -maxdepth 2 -type d | sort
 
-      - name: Setup Gradle
+      - name: 🔍 Cari file build.gradle
+        id: find-gradle
+        run: |
+          BUILD_FILE=$(find . -name "build.gradle" -type f | head -1)
+          if [ -n "$BUILD_FILE" ]; then
+            PROJECT_DIR=$(dirname "$BUILD_FILE")
+            echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+            echo "✅ Ditemukan build.gradle di: $PROJECT_DIR"
+          else
+            echo "❌ Tidak ada build.gradle! Pastikan ZIP berisi project Android."
+            exit 1
+          fi
+
+      - name: 📁 Pindah ke direktori proyek
+        run: cd ${{ env.PROJECT_DIR }}
+
+      - name: 🛠 Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Create gradlew if not exists
+      - name: 🏗 Buat gradlew jika belum ada
         run: |
-          if [ ! -f "./gradlew" ] && [ ! -f "./reme-casino/gradlew" ]; then
-            echo "Gradle wrapper not found, creating it..."
+          if [ ! -f "${{ env.PROJECT_DIR }}/gradlew" ]; then
+            echo "gradlew tidak ditemukan, membuatnya..."
+            cd ${{ env.PROJECT_DIR }}
             gradle wrapper --gradle-version 8.6
           fi
 
-      - name: Locate project directory
-        run: |
-          if [ -f "./gradlew" ]; then
-            echo "PROJECT_DIR=." >> $GITHUB_ENV
-          elif [ -f "./reme-casino/gradlew" ]; then
-            echo "PROJECT_DIR=./reme-casino" >> $GITHUB_ENV
-          else
-            echo "PROJECT_DIR=." >> $GITHUB_ENV
-          fi
-
-      - name: Grant permission
+      - name: 🔓 Beri izin gradlew
         run: chmod +x ${{ env.PROJECT_DIR }}/gradlew
 
-      - name: Build APK
+      - name: 🚀 Build APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: ./gradlew assembleRelease --warning-mode none
 
-      - name: Upload APK
+      - name: 📦 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: reme-casino-apk
