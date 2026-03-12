@@ -16,7 +16,7 @@ jobs:
         run: chmod +x gradlew
       - name: Build APK
         run: ./gradlew assembleRelease
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: reme-casino-apk
           path: app/build/outputs/apk/release/*.apk
