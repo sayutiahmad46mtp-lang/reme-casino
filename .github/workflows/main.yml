@@ -23,15 +23,15 @@ jobs:
 
       - name: Install Gradle
         run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.0-bin.zip
-          unzip -q gradle-8.0-bin.zip
-          export PATH=$PATH:$(pwd)/gradle-8.0/bin
+          wget -q https://services.gradle.org/distributions/gradle-7.6.1-bin.zip
+          unzip -q gradle-7.6.1-bin.zip
+          export PATH=$PATH:$(pwd)/gradle-7.6.1/bin
           gradle wrapper
           chmod +x gradlew
 
       - name: Build APK
         run: |
-          export PATH=$PATH:$(pwd)/gradle-8.0/bin
+          export PATH=$PATH:$(pwd)/gradle-7.6.1/bin
           ./gradlew assembleRelease
 
       - uses: actions/upload-artifact@v4
