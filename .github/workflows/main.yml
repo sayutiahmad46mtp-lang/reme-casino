@@ -74,5 +74,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: reme-casino-apk
+          name: the-last-game.apk
           path: app/build/outputs/apk/release/*.apk
